@@ -1,0 +1,67 @@
+name: Deploy workers
+on:
+  push:
+    branches: [main]
+    paths: ['workers/**']
+  workflow_dispatch:
+    inputs:
+      worker:
+        description: 'Worker folder name, or "all"'
+        default: all
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      workers: ${{ steps.list.outputs.workers }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: list
+        env:
+          INPUT: ${{ github.event.inputs.worker }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          all=$(find workers -mindepth 2 -maxdepth 2 -name wrangler.toml | cut -d/ -f2 | sort)
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            [ "$INPUT" = all ] && list="$all" || list="$INPUT"
+          elif ! git cat-file -e "$BEFORE" 2>/dev/null || git diff --name-only "$BEFORE" HEAD | grep -qE '^workers/[^/]+$'; then
+            list="$all"
+          else
+            list=$(git diff --name-only "$BEFORE" HEAD | grep '^workers/[^/]*/' | cut -d/ -f2 | sort -u | grep -Fxf <(echo "$all") || true)
+          fi
+          echo "workers=$(echo "$list" | jq -Rnc '[inputs | select(length > 0)]')" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: detect
+    if: needs.detect.outputs.workers != '[]' && vars.CLOUDFLARE_ACCOUNT_ID != ''
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: ${{ fromJSON(needs.detect.outputs.workers) }}
+    defaults:
+      run:
+        working-directory: workers
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx wrangler deploy -c ${{ matrix.worker }}/wrangler.toml
+      - name: Push worker secrets
+        env:
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+          WORKER: ${{ matrix.worker }}
+        run: |
+          prefix="$(echo "$WORKER" | tr '[:lower:]-' '[:upper:]_')__"
+          echo "$ALL_SECRETS" | jq --arg p "$prefix" 'with_entries(select(.key | startswith($p)) | .key |= ltrimstr($p))' > /tmp/secrets.json
+          if [ "$(jq length /tmp/secrets.json)" -gt 0 ]; then
+            npx wrangler secret bulk /tmp/secrets.json -c "$WORKER/wrangler.toml"
+          fi
+          rm -f /tmp/secrets.json

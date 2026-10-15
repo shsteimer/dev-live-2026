@@ -1,0 +1,19 @@
+name = "dev-live-cdn"
+main = "src/index.js"
+compatibility_date = "2025-03-17"
+workers_dev = true
+
+# Add once the domain is on Cloudflare:
+# routes = [{ pattern = "devlive.shsteimer.com/*", zone_name = "shsteimer.com" }]
+
+[vars]
+ORIGIN_HOSTNAME = "main--dev-live-2026--shsteimer.aem.live"
+# Repoless: host -> origin, or { origin, tokenSecret } for sites with origin auth.
+SITES = '''
+{
+  "devlive.shsteimer.com": "main--dev-live-2026--shsteimer.aem.live"
+}
+'''
+
+# Secrets (wrangler secret put / GitHub workflow):
+# ORIGIN_AUTHENTICATION, plus any tokenSecret names referenced in SITES.

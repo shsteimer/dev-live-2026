@@ -3,3 +3,4 @@
 LICENSE
 package.json
 package-lock.json
+workers/*

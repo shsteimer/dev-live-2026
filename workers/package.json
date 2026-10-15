@@ -1,0 +1,11 @@
+{
+  "name": "dev-live-2026-workers",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev -c cdn/wrangler.toml"
+  },
+  "devDependencies": {
+    "wrangler": "^4.151.0"
+  }
+}

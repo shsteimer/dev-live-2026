@@ -9,6 +9,18 @@ Edge Delivery Services. Read a block first. Omissions are in the repo or known.
 - Demos to support: environments/repoless (#10), gated content (#8), martech vs. performance (#5), authoring (#4), multi-region (#3), carousel/design system (#2), server-side logic + SEO (#1).
 - Integrations will run as Cloudflare Workers on a custom domain (likely `devlive.shsteimer.com`, TBD).
 
+## Workers
+- `workers/<name>/` (wrangler.toml + `src/index.js`), own `package.json` in `workers/`. Not served (`.hlxignore`). See `workers/README.md`.
+- `cdn`: BYO CDN worker, routes host → origin via `SITES` for repoless.
+- Push to `main` touching `workers/<name>/` deploys it (`.github/workflows/workers.yaml`). Needs `CLOUDFLARE_API_TOKEN` secret + `CLOUDFLARE_ACCOUNT_ID` var.
+- Prefer worker routes on the site domain (e.g. `/api/*`) over cross-origin calls.
+
+## Repoless
+- Some demos (#10 staging, #3 regions) need more sites sharing this code. Each site: own DA content + config at tools.aem.live, code from this repo.
+- Code must not hardcode the site name or host. Use relative URLs and `window.hlx.codeBasePath`.
+- New site → add host to `SITES` in `workers/cdn/wrangler.toml`.
+- `content/` holds the main site only. Clone other sites into a separate checkout.
+
 ## Content
 - Authored in DA: `shsteimer/dev-live-2026`. Edit locally in `content/` (gitignored, own git).
 - `aem content clone --all` → edit → `aem content add` → `aem content commit -m` → `aem content push`. Push stores; it does not preview or publish.
@@ -20,7 +32,8 @@ Standing approval from Sean, overriding global rules for this repo only:
 - Create, edit, delete any file in this repo and `content/`.
 - Commit and push straight to `main` on `shsteimer/dev-live-2026`. No PR needed.
 - `aem content push`, incl. deletes, to DA `shsteimer/dev-live-2026`.
-- Preview, publish, unpublish via admin.hlx.page for `shsteimer/dev-live-2026`.
+- Preview, publish, unpublish via admin.hlx.page for `shsteimer/dev-live-2026` and its repoless sites.
+- Create/edit files under `workers/` and the GitHub workflows that deploy them.
 - Still ask first: force-push, history rewrites, other repos/sites, Cloudflare changes.
 
 ## Avoid
