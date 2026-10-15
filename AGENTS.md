@@ -15,6 +15,14 @@ Edge Delivery Services. Read a block first. Omissions are in the repo or known.
 - Images live in DA under `/media/`. Use CC0 or public-domain only.
 - Write like a real brand. No lorem ipsum, no talk references in content.
 
+## Authorization
+Standing approval from Sean, overriding global rules for this repo only:
+- Create, edit, delete any file in this repo and `content/`.
+- Commit and push straight to `main` on `shsteimer/dev-live-2026`. No PR needed.
+- `aem content push`, incl. deletes, to DA `shsteimer/dev-live-2026`.
+- Preview, publish, unpublish via admin.hlx.page for `shsteimer/dev-live-2026`.
+- Still ask first: force-push, history rewrites, other repos/sites, Cloudflare changes.
+
 ## Avoid
 - `scripts/aem.js` is vendored. Never edit.
 - Markup comes from the backend. `curl localhost:3000/x.plain.html` first.
@@ -30,7 +38,6 @@ Edge Delivery Services. Read a block first. Omissions are in the repo or known.
 ## Remember
 - `npx -y @adobe/aem-cli up`: local code, previewed content.
 - Merging `main` ships code; content publishes separately.
-- Overrides global rules: commit and push straight to `main`, no PR needed.
 - PRs, when used, need a `{branch}--dev-live-2026--shsteimer.aem.page/{path}` link.
 - All committed files are served. Use `.hlxignore`.
 - Skills: `/plugin marketplace add adobe/skills`, then `aem-edge-delivery-services` (24 skills, incl. `docs-search`).
