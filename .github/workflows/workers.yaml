@@ -29,7 +29,12 @@ jobs:
           elif ! git cat-file -e "$BEFORE" 2>/dev/null || git diff --name-only "$BEFORE" HEAD | grep -qE '^workers/[^/]+$'; then
             list="$all"
           else
-            list=$(git diff --name-only "$BEFORE" HEAD | grep '^workers/[^/]*/' | cut -d/ -f2 | sort -u | grep -Fxf <(echo "$all") || true)
+            changed=$(git diff --name-only "$BEFORE" HEAD | grep '^workers/[^/]*/' | cut -d/ -f2 | sort -u)
+            if echo "$changed" | grep -qvFxf <(echo "$all"); then
+              list="$all"
+            else
+              list="$changed"
+            fi
           fi
           echo "workers=$(echo "$list" | jq -Rnc '[inputs | select(length > 0)]')" >> "$GITHUB_OUTPUT"
 

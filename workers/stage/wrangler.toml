@@ -1,0 +1,14 @@
+name = "dev-live-stage"
+main = "src/index.js"
+compatibility_date = "2025-03-17"
+workers_dev = true
+
+# Add once the domain is on Cloudflare:
+# routes = [{ pattern = "stage.devlive.shsteimer.com/*", zone_name = "shsteimer.com" }]
+
+[vars]
+ORIGIN_SITE = "dev-live-2026"
+ORIGIN_OWNER = "shsteimer"
+DEFAULT_REF = "main"
+
+# Secrets: ORIGIN_AUTHENTICATION (if the site requires auth).

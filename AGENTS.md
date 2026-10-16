@@ -11,12 +11,20 @@ Edge Delivery Services. Read a block first. Omissions are in the repo or known.
 
 ## Workers
 - `workers/<name>/` (wrangler.toml + `src/index.js`), own `package.json` in `workers/`. Not served (`.hlxignore`). See `workers/README.md`.
-- `cdn`: BYO CDN worker, routes host → origin via `SITES` for repoless.
+- `cdn`: prod BYO CDN worker, routes host → origin via `SITES` for repoless.
+- `stage`: stage CDN. `?ref={branch}` → `{branch}--dev-live-2026--shsteimer.aem.live`, sticky via cookie, `?ref=` resets. Uncached, noindex.
+- `shared/aem-proxy.js`: common proxy logic. Changing it deploys all workers.
 - Push to `main` touching `workers/<name>/` deploys it (`.github/workflows/workers.yaml`). Needs `CLOUDFLARE_API_TOKEN` secret + `CLOUDFLARE_ACCOUNT_ID` var.
 - Prefer worker routes on the site domain (e.g. `/api/*`) over cross-origin calls.
 
+## Regions and languages
+- Regional repoless sites: NA, EU, APAC (Sean creates sites + CDNs). Each translates into its own languages.
+- All content lives under a language root: `/en/...`, `/de/...`. `/` redirects to `/en/` (`redirects` sheet). Nav/footer: `/{lang}/nav`, `/{lang}/footer`.
+- Code reads language from the path via `scripts/i18n.js`. Never hardcode `/en` in code; content links are absolute with the language root.
+- `/docs/...` is site tooling, not localized.
+
 ## Repoless
-- Some demos (#10 staging, #3 regions) need more sites sharing this code. Each site: own DA content + config at tools.aem.live, code from this repo.
+- Each site: own DA content + config at tools.aem.live, code from this repo.
 - Code must not hardcode the site name or host. Use relative URLs and `window.hlx.codeBasePath`.
 - New site → add host to `SITES` in `workers/cdn/wrangler.toml`.
 - `content/` holds the main site only. Clone other sites into a separate checkout.

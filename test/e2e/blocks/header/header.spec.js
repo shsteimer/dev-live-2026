@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// Requires: aem up. Nav labels are authored, so none are hardcoded.
+// Requires: aem up + /en/nav. Nav labels are authored, so none are hardcoded.
 
 function nav(page) {
   return page.locator('.header').getByRole('navigation');
@@ -10,7 +10,7 @@ test.describe('header — desktop', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/en/');
     await page.locator('.header[data-block-status="loaded"]').waitFor();
   });
 
@@ -30,7 +30,7 @@ test.describe('header — mobile', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/en/');
     await page.locator('.header[data-block-status="loaded"]').waitFor({ state: 'attached' });
   });
 
