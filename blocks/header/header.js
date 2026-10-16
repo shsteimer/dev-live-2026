@@ -112,8 +112,10 @@ export default async function decorate(block) {
   const brandLink = navBrand.querySelector('.button');
   if (brandLink) {
     brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
+    brandLink.closest('.button-wrapper').className = '';
   }
+
+  nav.querySelector('.nav-tools .default-content-wrapper > ul')?.classList.add('nav-tools-list');
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {

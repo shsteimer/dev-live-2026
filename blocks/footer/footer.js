@@ -16,5 +16,9 @@ export default async function decorate(block) {
   const footer = document.createElement('div');
   while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
 
+  const sections = [...footer.children];
+  if (sections.length) sections[0].classList.add('footer-brand');
+  if (sections.length > 1) sections[sections.length - 1].classList.add('footer-legal');
+
   block.append(footer);
 }

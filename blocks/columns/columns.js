@@ -5,10 +5,10 @@ export default function decorate(block) {
   // setup image columns
   [...block.children].forEach((row) => {
     [...row.children].forEach((col) => {
-      const pic = col.querySelector('picture');
+      const pic = col.querySelector('picture, img');
       if (pic) {
         const picWrapper = pic.closest('div');
-        if (picWrapper && picWrapper.children.length === 1) {
+        if (picWrapper && !picWrapper.textContent.trim() && picWrapper.querySelectorAll('img').length === 1) {
           // picture is only content in column
           picWrapper.classList.add('columns-img-col');
         }

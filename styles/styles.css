@@ -12,12 +12,15 @@
 
 :root {
   /* colors */
-  --background-color: white;
-  --light-color: #f8f8f8;
-  --dark-color: #505050;
-  --text-color: #131313;
-  --link-color: #3b63fb;
-  --link-hover-color: #1d3ecf;
+  --background-color: #fff;
+  --light-color: #f4f2ee;
+  --dark-color: #4a5560;
+  --text-color: #0e1a24;
+  --link-color: #d9480f;
+  --link-hover-color: #a8360a;
+  --brand-navy: #0e1a24;
+  --brand-accent: #ff5a1f;
+  --border-color: #dcd8d0;
 
   /* fonts */
   --body-font-family: roboto, roboto-fallback, sans-serif;
@@ -107,8 +110,9 @@ h6 {
   margin-top: 0.8em;
   margin-bottom: 0.25em;
   font-family: var(--heading-font-family);
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   scroll-margin: 40px;
 }
 
@@ -254,9 +258,9 @@ button.button.secondary:disabled:focus-visible {
 /* high-impact call-to-action */
 a.button.accent,
 button.button.accent {
-  border-color: var(--link-color);
-  background-color: var(--link-color);
-  color: var(--background-color);
+  border-color: var(--brand-accent);
+  background-color: var(--brand-accent);
+  color: var(--brand-navy);
 }
 
 a.button.accent:hover,
@@ -318,8 +322,59 @@ main > .section:first-of-type {
 
 /* section metadata */
 main .section.light,
+main .section.highlight,
+main .section.dark,
+main .section.accent {
+  margin: 0;
+  padding: 56px 0;
+}
+
+main .section.light,
 main .section.highlight {
   background-color: var(--light-color);
-  margin: 0;
-  padding: 40px 0;
+}
+
+main .section.dark {
+  background-color: var(--brand-navy);
+  color: var(--background-color);
+}
+
+main .section.accent {
+  background-color: var(--brand-accent);
+  color: var(--brand-navy);
+}
+
+main .section.dark a:any-link:not(.button) {
+  color: var(--brand-accent);
+}
+
+main .section.dark a.button.primary {
+  border-color: var(--background-color);
+  background-color: var(--background-color);
+  color: var(--brand-navy);
+}
+
+main .section.dark a.button.secondary {
+  border-color: var(--background-color);
+  color: var(--background-color);
+}
+
+main .section.accent a.button.primary {
+  border-color: var(--brand-navy);
+  background-color: var(--brand-navy);
+  color: var(--background-color);
+}
+
+main .section.center {
+  text-align: center;
+}
+
+main .section.narrow > div {
+  max-width: 800px;
+}
+
+main .section.dark a.button.secondary:hover,
+main .section.accent a.button.secondary:hover {
+  background-color: transparent;
+  opacity: 0.8;
 }

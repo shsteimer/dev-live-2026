@@ -1,0 +1,26 @@
+.stats ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats li {
+  padding-left: 20px;
+  border-left: 4px solid var(--brand-accent);
+}
+
+.stats .stats-value {
+  display: block;
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-xxl);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stats .stats-label p {
+  margin: 4px 0 0;
+  font-size: var(--body-font-size-s);
+}
