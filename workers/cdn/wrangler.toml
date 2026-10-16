@@ -3,7 +3,6 @@ main = "src/index.js"
 compatibility_date = "2025-03-17"
 workers_dev = true
 
-# Add once the domain is on Cloudflare:
 # routes = [{ pattern = "devlive.shsteimer.com/*", zone_name = "shsteimer.com" }]
 
 [vars]
@@ -15,5 +14,17 @@ SITES = '''
 }
 '''
 
-# Secrets (wrangler secret put / GitHub workflow):
-# ORIGIN_AUTHENTICATION, plus any tokenSecret names referenced in SITES.
+# Stage: same code, ?ref={branch} picks the aem.live branch. Deploy with --env stage.
+[env.stage]
+name = "dev-live-cdn-stage"
+# routes = [{ pattern = "stage.devlive.shsteimer.com/*", zone_name = "shsteimer.com" }]
+
+[env.stage.vars]
+MODE = "stage"
+DEFAULT_REF = "main"
+ORIGIN_HOSTNAME = "main--dev-live-2026--shsteimer.aem.live"
+SITES = '''
+{
+  "stage.devlive.shsteimer.com": "main--dev-live-2026--shsteimer.aem.live"
+}
+'''

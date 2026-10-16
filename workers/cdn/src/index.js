@@ -1,4 +1,5 @@
-import { preflight, proxyToAem } from '../../shared/aem-proxy.js';
+import { preflight, proxyToAem } from './aem-proxy.js';
+import { resolveRef, withRef } from './stage.js';
 
 const parseSites = (env) => {
   try {
@@ -24,11 +25,28 @@ const handleRequest = async (request, env) => {
   if (!/^main--/.test(origin.hostname || '')) {
     return new Response('Invalid origin hostname', { status: 500 });
   }
-  return proxyToAem(request, {
-    hostname: origin.hostname,
-    token: origin.token || env.ORIGIN_AUTHENTICATION,
-    pushInvalidation: env.PUSH_INVALIDATION !== 'disabled',
+  const token = origin.token || env.ORIGIN_AUTHENTICATION;
+
+  if (env.MODE !== 'stage') {
+    return proxyToAem(request, {
+      hostname: origin.hostname,
+      token,
+      pushInvalidation: env.PUSH_INVALIDATION !== 'disabled',
+    });
+  }
+
+  const { ref, setCookie } = resolveRef(request, env);
+  const resp = await proxyToAem(request, {
+    hostname: withRef(origin.hostname, ref),
+    token,
+    pushInvalidation: false,
+    cacheEverything: false,
   });
+  resp.headers.set('x-robots-tag', 'noindex, nofollow');
+  resp.headers.set('x-aem-ref', ref);
+  resp.headers.set('cache-control', 'private, no-store');
+  if (setCookie) resp.headers.append('set-cookie', setCookie);
+  return resp;
 };
 
 export default {

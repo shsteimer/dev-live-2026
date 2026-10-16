@@ -13,7 +13,7 @@ jobs:
   detect:
     runs-on: ubuntu-latest
     outputs:
-      workers: ${{ steps.list.outputs.workers }}
+      targets: ${{ steps.list.outputs.targets }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,37 +36,45 @@ jobs:
               list="$changed"
             fi
           fi
-          echo "workers=$(echo "$list" | jq -Rnc '[inputs | select(length > 0)]')" >> "$GITHUB_OUTPUT"
+          targets=$(for w in $list; do
+            echo "{\"worker\":\"$w\",\"env\":\"\"}"
+            sed -nE 's/^\[env\.([A-Za-z0-9_-]+)\]$/\1/p' "workers/$w/wrangler.toml" | while read -r e; do
+              echo "{\"worker\":\"$w\",\"env\":\"$e\"}"
+            done
+          done | jq -sc '.')
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
 
   deploy:
     needs: detect
-    if: needs.detect.outputs.workers != '[]' && vars.CLOUDFLARE_ACCOUNT_ID != ''
+    if: needs.detect.outputs.targets != '[]' && vars.CLOUDFLARE_ACCOUNT_ID != ''
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        worker: ${{ fromJSON(needs.detect.outputs.workers) }}
+        target: ${{ fromJSON(needs.detect.outputs.targets) }}
+    name: deploy ${{ matrix.target.worker }} ${{ matrix.target.env || 'production' }}
     defaults:
       run:
         working-directory: workers
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      WORKER: ${{ matrix.target.worker }}
+      WORKER_ENV: ${{ matrix.target.env }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
       - run: npm ci
-      - run: npx wrangler deploy -c ${{ matrix.worker }}/wrangler.toml
+      - run: npx wrangler deploy -c "$WORKER/wrangler.toml" ${WORKER_ENV:+--env "$WORKER_ENV"}
       - name: Push worker secrets
         env:
           ALL_SECRETS: ${{ toJSON(secrets) }}
-          WORKER: ${{ matrix.worker }}
         run: |
-          prefix="$(echo "$WORKER" | tr '[:lower:]-' '[:upper:]_')__"
+          prefix="$(echo "$WORKER${WORKER_ENV:+_$WORKER_ENV}" | tr '[:lower:]-' '[:upper:]_')__"
           echo "$ALL_SECRETS" | jq --arg p "$prefix" 'with_entries(select(.key | startswith($p)) | .key |= ltrimstr($p))' > /tmp/secrets.json
           if [ "$(jq length /tmp/secrets.json)" -gt 0 ]; then
-            npx wrangler secret bulk /tmp/secrets.json -c "$WORKER/wrangler.toml"
+            npx wrangler secret bulk /tmp/secrets.json -c "$WORKER/wrangler.toml" ${WORKER_ENV:+--env "$WORKER_ENV"}
           fi
           rm -f /tmp/secrets.json

@@ -11,10 +11,9 @@ Edge Delivery Services. Read a block first. Omissions are in the repo or known.
 
 ## Workers
 - `workers/<name>/` (wrangler.toml + `src/index.js`), own `package.json` in `workers/`. Not served (`.hlxignore`). See `workers/README.md`.
-- `cdn`: prod BYO CDN worker, routes host → origin via `SITES` for repoless.
-- `stage`: stage CDN. `?ref={branch}` → `{branch}--dev-live-2026--shsteimer.aem.live`, sticky via cookie, `?ref=` resets. Uncached, noindex.
-- `shared/aem-proxy.js`: common proxy logic. Changing it deploys all workers.
-- Push to `main` touching `workers/<name>/` deploys it (`.github/workflows/workers.yaml`). Needs `CLOUDFLARE_API_TOKEN` secret + `CLOUDFLARE_ACCOUNT_ID` var.
+- `cdn`: BYO CDN worker, routes host → origin via `SITES` for repoless.
+- Stage CDN = same worker, `wrangler --env stage` (`MODE=stage`). `?ref={branch}` swaps the branch on the resolved origin, sticky via cookie, `?ref=` resets. Uncached, noindex.
+- Push to `main` touching `workers/<name>/` deploys it and each `[env.*]` (`.github/workflows/workers.yaml`). Needs `CLOUDFLARE_API_TOKEN` secret + `CLOUDFLARE_ACCOUNT_ID` var.
 - Prefer worker routes on the site domain (e.g. `/api/*`) over cross-origin calls.
 
 ## Regions and languages
