@@ -4,3 +4,7 @@ LICENSE
 package.json
 package-lock.json
 workers/*
+test/*
+playwright.config.js
+test-results/*
+playwright-report/*

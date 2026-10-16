@@ -24,8 +24,20 @@ Edge Delivery Services. Read a block first. Omissions are in the repo or known.
 ## Content
 - Authored in DA: `shsteimer/dev-live-2026`. Edit locally in `content/` (gitignored, own git).
 - `aem content clone --all` → edit → `aem content add` → `aem content commit -m` → `aem content push`. Push stores; it does not preview or publish.
-- Images live in DA under `/media/`. Use CC0 or public-domain only.
+- Images: external public URLs (CC0, e.g. rawpixel `editor_1024`, no watermark). Publishing ingests them to the media bus. Don't upload binaries to DA.
+- Preview locally with `aem up` only. Sean previews/publishes from DA.
+- Block library: `docs/library/blocks/{block}` + row in `docs/library/blocks.json`. Never published. Test-only variants: `docs/testing/blocks/{block}`.
 - Write like a real brand. No lorem ipsum, no talk references in content.
+
+## Testing
+- `npm run lint` (pre-commit hook + CI), `npm test` (node:test + jsdom, CI), `npm run test:e2e` (Playwright vs. `aem up` + library pages; local only).
+- Unit tests: pure logic only, mirror source path under `test/`. Call `setupDom()` before importing code that touches `window`.
+- E2E: `test/e2e/blocks/{block}/{block}.spec.js`. Block root class + ARIA roles only, no authored copy. Only for a11y/interaction worth guarding.
+- Guidance: `.agents/skills/testing-blocks/` (philosophy in `references/`).
+
+## Skills
+- `.agents/skills/` (`.claude/skills` symlinks to it): adobe/skills EDS + content-ops plugins. `testing-blocks` and `content-driven-development` carry local test/library conventions; keep them on upstream updates.
+- Reuse ideas freely from https://github.com/scdemos/demo (auth-toggle, product-grid, search, form, schema, workers).
 
 ## Authorization
 Standing approval from Sean, overriding global rules for this repo only:
@@ -49,8 +61,7 @@ Standing approval from Sean, overriding global rules for this repo only:
 - `fstab.yaml`, `helix-query.yaml`, `paths.json` are retired. Config lives at tools.aem.live.
 
 ## Remember
-- `npx -y @adobe/aem-cli up`: local code, previewed content.
+- `npx -y @adobe/aem-cli up`: local code + local `content/`, falls back to preview.
 - Merging `main` ships code; content publishes separately.
 - PRs, when used, need a `{branch}--dev-live-2026--shsteimer.aem.page/{path}` link.
 - All committed files are served. Use `.hlxignore`.
-- Skills: `/plugin marketplace add adobe/skills`, then `aem-edge-delivery-services` (24 skills, incl. `docs-search`).

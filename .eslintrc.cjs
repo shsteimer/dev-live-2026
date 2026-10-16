@@ -12,7 +12,20 @@ module.exports = {
   },
   rules: {
     'import/extensions': ['error', { js: 'always' }], // require js file extensions in imports
+    'import/no-extraneous-dependencies': ['error', {
+      devDependencies: ['playwright.config.js', 'test/**/*.js'],
+    }],
     'linebreak-style': ['error', 'unix'], // enforce unix linebreaks
     'no-param-reassign': [2, { props: false }], // allow modifying properties of param
   },
+  overrides: [
+    {
+      files: ['test/**/*.js', 'playwright.config.js'],
+      env: { node: true },
+      rules: {
+        'class-methods-use-this': 'off',
+        'import/no-relative-packages': 'off',
+      },
+    },
+  ],
 };

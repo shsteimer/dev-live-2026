@@ -12,3 +12,7 @@ content
 !CLAUDE.md
 !AGENTS.md
 .wrangler/
+
+.hlx/.da-token.json
+test-results/
+playwright-report/

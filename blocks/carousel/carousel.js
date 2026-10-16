@@ -2,13 +2,20 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 let carouselId = 0;
 
-function showSlide(block, index) {
+export function resolveSlideIndex(index, count) {
+  if (!count) return 0;
+  const n = Number.isFinite(index) ? Math.trunc(index) : 0;
+  return ((n % count) + count) % count;
+}
+
+function showSlide(block, index, scroll = true) {
   const slides = [...block.querySelectorAll('.carousel-slide')];
-  const count = slides.length;
-  const target = ((index % count) + count) % count;
+  const target = resolveSlideIndex(index, slides.length);
   block.dataset.activeSlide = target;
-  const track = block.querySelector('.carousel-slides');
-  track.scrollTo({ left: slides[target].offsetLeft, behavior: 'smooth' });
+  if (scroll) {
+    const track = block.querySelector('.carousel-slides');
+    track.scrollTo({ left: slides[target].offsetLeft, behavior: 'smooth' });
+  }
   slides.forEach((slide, i) => {
     slide.setAttribute('aria-hidden', i !== target);
     slide.querySelectorAll('a').forEach((a) => { a.tabIndex = i === target ? 0 : -1; });
@@ -72,15 +79,10 @@ export default function decorate(block) {
   track.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => {
-      const i = Math.round(track.scrollLeft / track.clientWidth);
-      if (i !== Number(block.dataset.activeSlide)) {
-        block.dataset.activeSlide = i;
-        dots.querySelectorAll('button').forEach((d, j) => d.setAttribute('aria-current', i === j));
-      }
+      const i = resolveSlideIndex(Math.round(track.scrollLeft / track.clientWidth), rows.length);
+      if (i !== Number(block.dataset.activeSlide)) showSlide(block, i, false);
     }, 100);
   });
 
-  block.dataset.activeSlide = 0;
-  track.querySelectorAll('.carousel-slide').forEach((s, i) => s.setAttribute('aria-hidden', i !== 0));
-  dots.firstElementChild.setAttribute('aria-current', true);
+  showSlide(block, 0, false);
 }
